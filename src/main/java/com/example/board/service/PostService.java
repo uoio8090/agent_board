@@ -2,10 +2,12 @@ package com.example.board.service;
 
 import com.example.board.entity.Post;
 import com.example.board.repository.PostRepository;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -52,6 +54,7 @@ public class PostService {
     }
 
     /** 지정한 글들의 title/content에서 before를 after로 변경. 없는 id는 건너뛰고, 변경된 글 수를 반환 */
+    @Transactional
     public int replaceWord(List<Long> ids, String before, String after) {
         int changed = 0;
         for (Long id : ids) {
@@ -66,6 +69,11 @@ public class PostService {
             form.setContent(post.getContent().replace(before, after));
             update(id, form);
             changed++;
+        }
+        try {
+            repository.flush();   // 검증 실패를 커밋 전에 여기서 드러낸다 → 전체 롤백
+        } catch (ConstraintViolationException e) {
+            throw new IllegalArgumentException(e.getMessage(), e);
         }
         return changed;
     }

@@ -34,7 +34,11 @@ public class WordController {
         if (before.isEmpty()) {
             return ResponseEntity.badRequest().body("before 단어를 입력하세요.");
         }
-        int changed = service.replaceWord(ids, before, after);
-        return ResponseEntity.ok("OK (" + changed + "건 변경)");
+        try {
+            int changed = service.replaceWord(ids, before, after);
+            return ResponseEntity.ok("OK (" + changed + "건 변경)");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("변경할 수 없습니다. 전체 취소되었습니다: " + e.getMessage());
+        }
     }
 }
