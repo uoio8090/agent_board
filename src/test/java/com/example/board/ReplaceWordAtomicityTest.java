@@ -43,6 +43,16 @@ class ReplaceWordAtomicityTest extends ConcurrencyTestSupport {
     }
 
     @Test
+    void 검색은_치환과_같이_대소문자를_구분한다() {
+        Post lower = save("kfc 후기", "내용");
+        Post upper = save("KFC 후기", "내용");
+
+        List<Long> found = service.searchIdsByWord("kfc");
+
+        assertThat(found).contains(lower.getId()).doesNotContain(upper.getId());
+    }
+
+    @Test
     void 제목이_비게_되는_글이_있으면_앞_글도_원래대로_남는다() {
         Post a = save("kfc 후기", "내용");
         Post b = save("kfc", "내용");   // kfc를 지우면 제목이 비어 저장할 수 없다

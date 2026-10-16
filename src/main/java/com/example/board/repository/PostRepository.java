@@ -15,9 +15,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     Optional<Post> findFirstByOrderByIdDesc();
 
-    // 제목 또는 내용에 word가 포함된 글 id (대소문자 무시, %/_ 는 일반 문자로 취급)
-    @Query("select p.id from Post p where locate(lower(:word), lower(p.title)) > 0 "
-            + "or locate(lower(:word), lower(p.content)) > 0 order by p.id")
+    // 제목 또는 내용에 word가 포함된 글 id (대소문자 구분: 치환과 같은 규칙, %/_ 는 일반 문자로 취급)
+    @Query("select p.id from Post p where locate(:word, p.title) > 0 "
+            + "or locate(:word, p.content) > 0 order by p.id")
     List<Long> findIdsByWord(@Param("word") String word);
 
     // 삭제된 행 수 반환 (이미 삭제되었으면 0)
